@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 using namespace std;
@@ -11,6 +12,8 @@ void centerTextInRectangle(sf::Text& text, const sf::RectangleShape& rectangle) 
         rectBounds.top + (rectBounds.height / 2.f) - (textBounds.height / 2.f) - textBounds.top
     );
 }
+
+
 
 int main()
 {
@@ -58,6 +61,15 @@ int main()
     exitBox.setFillColor(sf::Color(0, 0, 0, 150));
     exitBox.setPosition((window.getSize().x - exitBox.getSize().x) / 2, 700);
     centerTextInRectangle(exitButton, exitBox);
+
+    sf::Music music;
+    if (!music.openFromFile("The Hobbit_LOTR_Sound_of_The_Shire.ogg")) {
+        std::cerr << "Error al cargar la música\n";
+        return -1; // Si no puede cargar la música, termina el programa
+    }
+
+    music.setLoop(true); // Repetir la música en bucle
+    music.play();        // Iniciar la reproducción de la música
 
     while (window.isOpen())
     {
