@@ -29,7 +29,21 @@ int main()
     sf::Sprite background(backgroundTexture);
 
     sf::Font font;
-    if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
+    if (!font.loadFromFile("DS_Celtic-2.ttf"))
+    {
+        cout << "Error cargando la fuente" << endl;
+        return -1;
+    }
+
+    sf::Font font1;
+    if (!font1.loadFromFile("MorrisRoman-Black.ttf"))
+    {
+        cout << "Error cargando la fuente" << endl;
+        return -1;
+    }
+
+    sf::Font font2;
+    if (!font2.loadFromFile("tolkien.ttf"))
     {
         cout << "Error cargando la fuente" << endl;
         return -1;
@@ -43,9 +57,9 @@ int main()
     titleBox.setPosition((window.getSize().x - titleBox.getSize().x) / 2, 200);
     centerTextInRectangle(title, titleBox); 
 
-    sf::Text aboutButton("Acerca de", font, 40);
-    sf::Text mapButton("Mostrar Mapa", font, 40);
-    sf::Text exitButton("Salir", font, 40);
+    sf::Text aboutButton("Acerca de", font2, 40);
+    sf::Text mapButton("Mostrar Mapa", font2, 40);
+    sf::Text exitButton("Salir", font2, 40);
 
     sf::RectangleShape aboutBox(sf::Vector2f(400, 60));
     aboutBox.setFillColor(sf::Color(0, 0, 0, 150));
@@ -64,12 +78,12 @@ int main()
 
     sf::Music music;
     if (!music.openFromFile("The Hobbit_LOTR_Sound_of_The_Shire.ogg")) {
-        std::cerr << "Error al cargar la música\n";
-        return -1; // Si no puede cargar la música, termina el programa
+        cerr << "Error al cargar la música\n";
+        return -1;
     }
 
-    music.setLoop(true); // Repetir la música en bucle
-    music.play();        // Iniciar la reproducción de la música
+    music.setLoop(true);
+    music.play();
 
     while (window.isOpen())
     {
@@ -100,7 +114,7 @@ int main()
                         "II Proyecto de Programacion\n"
                         "Nombre de la Agencia: Destinos Magicos\n"
                         "Estudiante: Esteban Mena\n"
-                        "Profesor: Hairol Romero", font, 25);
+                        "Profesor: Hairol Romero", font1, 25);
                     projectInfo.setFillColor(sf::Color::White);
                     centerTextInRectangle(projectInfo, aboutTextBox);
 
@@ -123,7 +137,7 @@ int main()
                 }
                 if (mapButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                 {
-                    window.close();
+
                     sf::RenderWindow mapWindow(sf::VideoMode(1800, 1000), "Mapa");
                     sf::Texture mapTexture;
                     if (!mapTexture.loadFromFile("LOTR_map.jpg"))
