@@ -3,10 +3,11 @@
 #include <iostream>
 
 using namespace std;
+using namespace sf;
 
-void centerTextInRectangle(sf::Text& text, const sf::RectangleShape& rectangle) {
-    sf::FloatRect textBounds = text.getLocalBounds();
-    sf::FloatRect rectBounds = rectangle.getGlobalBounds();
+void centerTextInRectangle(Text& text, const RectangleShape& rectangle) {
+    FloatRect textBounds = text.getLocalBounds();
+    FloatRect rectBounds = rectangle.getGlobalBounds();
     text.setPosition(
         rectBounds.left + (rectBounds.width / 2.f) - (textBounds.width / 2.f),
         rectBounds.top + (rectBounds.height / 2.f) - (textBounds.height / 2.f) - textBounds.top
@@ -17,49 +18,69 @@ void centerTextInRectangle(sf::Text& text, const sf::RectangleShape& rectangle) 
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1800, 1000), "Destinos Magicos");
+    RenderWindow window(VideoMode(1800, 1000), "Destinos Magicos");
 
-    sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("background.jpg"))
+    Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("images/background.jpg"))
     {
         cout << "Error cargando la imagen de fondo" << endl;
         return -1;
     }
 
-    sf::Sprite background(backgroundTexture);
+    Sprite background(backgroundTexture);
 
-    sf::Font font;
-    if (!font.loadFromFile("DS_Celtic-2.ttf"))
+    Font font;
+    if (!font.loadFromFile("font/DS_Celtic-2.ttf"))
     {
         cout << "Error cargando la fuente" << endl;
         return -1;
     }
 
-    sf::Font font1;
-    if (!font1.loadFromFile("MorrisRoman-Black.ttf"))
+    Font font1;
+    if (!font1.loadFromFile("font/MorrisRoman-Black.ttf"))
     {
         cout << "Error cargando la fuente" << endl;
         return -1;
     }
 
-    sf::Font font2;
-    if (!font2.loadFromFile("tolkien.ttf"))
+    Font font2;
+    if (!font2.loadFromFile("font/tolkien.ttf"))
     {
         cout << "Error cargando la fuente" << endl;
         return -1;
     }
 
-    sf::Text title("Destinos Magicos", font, 80);
+    Text title("Destinos Magicos", font, 80);
     title.setFillColor(sf::Color::White);
 
-    sf::RectangleShape titleBox(sf::Vector2f(800, 100));
+    RectangleShape titleBox(sf::Vector2f(800, 100));
     titleBox.setFillColor(sf::Color(0, 0, 0, 150)); 
     titleBox.setPosition((window.getSize().x - titleBox.getSize().x) / 2, 200);
     centerTextInRectangle(title, titleBox); 
 
-    sf::Text aboutButton("Acerca de", font2, 40);
-    sf::Text mapButton("Mostrar Mapa", font2, 40);
-    sf::Text exitButton("Salir", font2, 40);
+    bool menu = true;
+    bool about = false;
+    bool map = false;
+
+
+    Text aboutButton("Acerca de", font2, 40);
+    Text mapButton("Mostrar Mapa", font2, 40);
+    Text exitButton("Salir", font2, 40);
+    Text returnButton("Regresar", font2, 20);
+    Text returnAboutButton("Regresar", font2, 40);
+
+
+    returnButton.setFillColor(Color::Black);
+
+    RectangleShape returnAboutBox(Vector2f(150, 55));
+    returnAboutBox.setFillColor(sf::Color(0, 0, 0, 150));
+    returnAboutBox.setPosition(50, 10);
+    centerTextInRectangle(returnAboutButton, returnAboutBox);
+
+    RectangleShape returnBox(Vector2f(85, 30));
+    returnBox.setFillColor(Color::White);
+    returnBox.setPosition(1300, 10);
+    centerTextInRectangle(returnButton, returnBox);
 
     sf::RectangleShape aboutBox(sf::Vector2f(400, 60));
     aboutBox.setFillColor(sf::Color(0, 0, 0, 150));
@@ -82,6 +103,7 @@ int main()
         return -1;
     }
 
+    music.setVolume(30.0f);
     music.setLoop(true);
     music.play();
 
@@ -103,8 +125,7 @@ int main()
                     sf::Sprite aboutBackground(backgroundTexture);
                     aboutBackground.setScale(
                         float(aboutWindow.getSize().x) / backgroundTexture.getSize().x,
-                        float(aboutWindow.getSize().y) / backgroundTexture.getSize().y
-                    );
+                        float(aboutWindow.getSize().y) / backgroundTexture.getSize().y);
 
                     sf::RectangleShape aboutTextBox(sf::Vector2f(900, 250));
                     aboutTextBox.setFillColor(sf::Color(0, 0, 0, 150));
@@ -130,7 +151,28 @@ int main()
                         aboutWindow.clear();
                         aboutWindow.draw(aboutBackground); 
                         aboutWindow.draw(aboutTextBox);  
-                        aboutWindow.draw(projectInfo);   
+                        aboutWindow.draw(projectInfo); 
+                        aboutWindow.draw(returnAboutBox);
+                        aboutWindow.draw(returnAboutButton);
+
+                        //sf::Event event;
+                        while (aboutWindow.pollEvent(event)) {
+
+                            if (event.type == sf::Event::Closed)
+                                window.close();
+                            if (event.type == sf::Event::MouseButtonPressed) {
+                                
+                                sf::Vector2i mousePos = sf::Mouse::getPosition(aboutWindow);
+
+                                if (returnAboutButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                    aboutWindow.close();
+                                }
+
+                            }
+                        
+                        }
+
+                       
                         aboutWindow.display();
 
                     }
@@ -140,7 +182,7 @@ int main()
 
                     sf::RenderWindow mapWindow(sf::VideoMode(1800, 1000), "Mapa");
                     sf::Texture mapTexture;
-                    if (!mapTexture.loadFromFile("LOTR_map.jpg"))
+                    if (!mapTexture.loadFromFile("images/LOTR_map3.jpg"))
                     {
                         cout << "Error cargando el mapa" << endl;
                         return -1;
@@ -156,6 +198,8 @@ int main()
                         }
                         mapWindow.clear();
                         mapWindow.draw(mapSprite);
+                        mapWindow.draw(returnBox);
+                        mapWindow.draw(returnButton);
                         mapWindow.display();
                     }
                 }
