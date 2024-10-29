@@ -68,16 +68,20 @@ int main()
     Text aboutButton("Acerca de", font2, 40);
     Text mapButton("Mostrar Mapa", font2, 40);
     Text exitButton("Salir", font2, 40);
+
     Text returnButton("Regresar", font2, 20);
+
     Text returnAboutButton("Regresar", font2, 40);
-    Text addPointButton("Agregar Punto", font2, 25);
-    Text changeNameButton("Cambiar Nombre", font2, 25);
-    Text deletePointButton("Eliminar Punto", font2, 25);
-    Text insertButton("Insercion", font2, 30);
-    Text editButton("Edicion", font2, 30);
-    Text deleteButton("Borrar", font2, 30);
-    Text addRouteButton("Agregar Ruta", font2, 25);
-  //Text backButton("Regresar", font2, 25);
+
+    Text addPointButton("Agregar Punto", font2, 35);
+    Text changeNameButton("Cambiar Nombre", font2, 35);
+    Text deletePointButton("Eliminar Punto", font2, 35);
+
+    Text insertButton("Insercion", font2, 40);
+    Text editButton("Edicion", font2, 40);
+    Text deleteButton("Borrar", font2, 40);
+
+    Text addRouteButton("Agregar Ruta", font2, 40);
 
     returnButton.setFillColor(Color::Black);
     addPointButton.setFillColor(Color::Black);
@@ -87,53 +91,43 @@ int main()
     editButton.setFillColor(Color::Black);
     deleteButton.setFillColor(Color::Black);
     addRouteButton.setFillColor(Color::Black);
-    //backButton.setFillColor(Color::Black);
 
-    RectangleShape insertBox(Vector2f(200, 50));
-    insertBox.setPosition(1300, 100);
+    RectangleShape insertBox(Vector2f(250, 75));
+    insertBox.setPosition(1430, 300);
     insertBox.setFillColor(Color::White);
     centerTextInRectangle(insertButton, insertBox);
 
-    RectangleShape editBox(Vector2f(200, 50));
-    editBox.setPosition(1300, 200);
+    RectangleShape editBox(Vector2f(250, 75));
+    editBox.setPosition(1430, 400);
     editBox.setFillColor(Color::White);
     centerTextInRectangle(editButton, editBox);
 
-    RectangleShape deleteBox(Vector2f(200, 50));
-    deleteBox.setPosition(1300, 300);
+    RectangleShape deleteBox(Vector2f(250, 75));
+    deleteBox.setPosition(1430, 500);
     deleteBox.setFillColor(Color::White);
     centerTextInRectangle(deleteButton, deleteBox);
 
    
-    RectangleShape addRouteBox(Vector2f(150, 40));
-    addRouteBox.setPosition(1300, 150);
+    RectangleShape addRouteBox(Vector2f(250, 75));
+    addRouteBox.setPosition(1430, 100);
     addRouteBox.setFillColor(Color::White);
     centerTextInRectangle(addRouteButton, addRouteBox);
 
-    //RectangleShape backBox(Vector2f(150, 40));
-    //backBox.setPosition(1300, 250);
-    //backBox.setFillColor(Color::White);
-    //centerTextInRectangle(backButton, backBox);
-
-
-    RectangleShape addPointBox(Vector2f(200, 40));
-    addPointBox.setPosition(1300, 150);
+    RectangleShape addPointBox(Vector2f(250, 75));
+    addPointBox.setPosition(1430, 150);
     addPointBox.setFillColor(Color::White);
     centerTextInRectangle(addPointButton, addPointBox);
 
-    RectangleShape changeNameBox(Vector2f(200, 40));
-    changeNameBox.setPosition(1300, 200);
+    RectangleShape changeNameBox(Vector2f(250, 75));
+    changeNameBox.setPosition(1430, 250);
     changeNameBox.setFillColor(Color::White);
     centerTextInRectangle(changeNameButton, changeNameBox);
 
-    RectangleShape deletePointBox(Vector2f(200, 40));
-    deletePointBox.setPosition(1300, 250);
+    RectangleShape deletePointBox(Vector2f(250, 75));
+    deletePointBox.setPosition(1430, 350);
     deletePointBox.setFillColor(Color::White);
     centerTextInRectangle(deletePointButton, deletePointBox);
-
-   
-
-
+    
     RectangleShape returnAboutBox(Vector2f(150, 55));
     returnAboutBox.setFillColor(sf::Color(0, 0, 0, 150));
     returnAboutBox.setPosition(50, 10);
@@ -314,13 +308,11 @@ int main()
                         }
                         else if (insertMenu) {
                             mapWindow.draw(addRouteBox); mapWindow.draw(addRouteButton);
-                            //mapWindow.draw(backBox); mapWindow.draw(backButton);
                         }
                         else if (editMenu) {
                             mapWindow.draw(addPointBox); mapWindow.draw(addPointButton);
                             mapWindow.draw(changeNameBox); mapWindow.draw(changeNameButton);
                             mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
-                            //mapWindow.draw(backBox); mapWindow.draw(backButton);
                         }
 
                         mapWindow.display();
