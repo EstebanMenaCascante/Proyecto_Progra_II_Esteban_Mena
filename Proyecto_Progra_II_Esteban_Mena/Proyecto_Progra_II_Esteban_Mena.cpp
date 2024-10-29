@@ -61,16 +61,78 @@ int main()
     bool menu = true;
     bool about = false;
     bool map = false;
-
+    bool mainMenu = true;
+    bool insertMenu = false;
+    bool editMenu = false;
 
     Text aboutButton("Acerca de", font2, 40);
     Text mapButton("Mostrar Mapa", font2, 40);
     Text exitButton("Salir", font2, 40);
     Text returnButton("Regresar", font2, 20);
     Text returnAboutButton("Regresar", font2, 40);
-
+    Text addPointButton("Agregar Punto", font2, 25);
+    Text changeNameButton("Cambiar Nombre", font2, 25);
+    Text deletePointButton("Eliminar Punto", font2, 25);
+    Text insertButton("Insercion", font2, 30);
+    Text editButton("Edicion", font2, 30);
+    Text deleteButton("Borrar", font2, 30);
+    Text addRouteButton("Agregar Ruta", font2, 25);
+  //Text backButton("Regresar", font2, 25);
 
     returnButton.setFillColor(Color::Black);
+    addPointButton.setFillColor(Color::Black);
+    changeNameButton.setFillColor(Color::Black);
+    deletePointButton.setFillColor(Color::Black);
+    insertButton.setFillColor(Color::Black);
+    editButton.setFillColor(Color::Black);
+    deleteButton.setFillColor(Color::Black);
+    addRouteButton.setFillColor(Color::Black);
+    //backButton.setFillColor(Color::Black);
+
+    RectangleShape insertBox(Vector2f(200, 50));
+    insertBox.setPosition(1300, 100);
+    insertBox.setFillColor(Color::White);
+    centerTextInRectangle(insertButton, insertBox);
+
+    RectangleShape editBox(Vector2f(200, 50));
+    editBox.setPosition(1300, 200);
+    editBox.setFillColor(Color::White);
+    centerTextInRectangle(editButton, editBox);
+
+    RectangleShape deleteBox(Vector2f(200, 50));
+    deleteBox.setPosition(1300, 300);
+    deleteBox.setFillColor(Color::White);
+    centerTextInRectangle(deleteButton, deleteBox);
+
+   
+    RectangleShape addRouteBox(Vector2f(150, 40));
+    addRouteBox.setPosition(1300, 150);
+    addRouteBox.setFillColor(Color::White);
+    centerTextInRectangle(addRouteButton, addRouteBox);
+
+    //RectangleShape backBox(Vector2f(150, 40));
+    //backBox.setPosition(1300, 250);
+    //backBox.setFillColor(Color::White);
+    //centerTextInRectangle(backButton, backBox);
+
+
+    RectangleShape addPointBox(Vector2f(200, 40));
+    addPointBox.setPosition(1300, 150);
+    addPointBox.setFillColor(Color::White);
+    centerTextInRectangle(addPointButton, addPointBox);
+
+    RectangleShape changeNameBox(Vector2f(200, 40));
+    changeNameBox.setPosition(1300, 200);
+    changeNameBox.setFillColor(Color::White);
+    centerTextInRectangle(changeNameButton, changeNameBox);
+
+    RectangleShape deletePointBox(Vector2f(200, 40));
+    deletePointBox.setPosition(1300, 250);
+    deletePointBox.setFillColor(Color::White);
+    centerTextInRectangle(deletePointButton, deletePointBox);
+
+   
+
 
     RectangleShape returnAboutBox(Vector2f(150, 55));
     returnAboutBox.setFillColor(sf::Color(0, 0, 0, 150));
@@ -177,53 +239,114 @@ int main()
 
                     }
                 }
-                if (mapButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
-                {
-
+                if (mapButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     sf::RenderWindow mapWindow(sf::VideoMode(1800, 1000), "Mapa");
-                    sf::Texture mapTexture;
-                    if (!mapTexture.loadFromFile("images/LOTR_map3.jpg"))
-                    {
+
+                    Texture mapTexture;
+                    if (!mapTexture.loadFromFile("images/LOTR_map3.jpg")) {
                         cout << "Error cargando el mapa" << endl;
                         return -1;
                     }
-                    sf::Sprite mapSprite(mapTexture);
-                    while (mapWindow.isOpen())
-                    {
+                    Sprite mapSprite(mapTexture);
+                   
+                    while (mapWindow.isOpen()) {
                         sf::Event mapEvent;
-                        while (mapWindow.pollEvent(mapEvent))
-                        {
+                        while (mapWindow.pollEvent(mapEvent)) {
                             if (mapEvent.type == sf::Event::Closed)
                                 mapWindow.close();
+
+                            if (mapEvent.type == sf::Event::MouseButtonPressed) {
+                                sf::Vector2i mousePosMap = sf::Mouse::getPosition(mapWindow);
+
+                                if (mainMenu) {
+                                    if (insertBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        mainMenu = false;
+                                        insertMenu = true;
+                                    }
+                                    else if (editBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        mainMenu = false;
+                                        editMenu = true;
+                                    }
+                                    else if (deleteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        // Lógica para eliminar rutas
+                                    }
+                                    else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        mapWindow.close();
+                                    }
+                                }
+                                else if (insertMenu) {
+                                    if (addRouteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        // Lógica para agregar una ruta
+                                    }
+                                    else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        insertMenu = false;
+                                        mainMenu = true;
+                                    }
+                                }
+                                else if (editMenu) {
+                                    if (addPointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        // Lógica para agregar un punto
+                                    }
+                                    else if (changeNameBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        // Lógica para cambiar el nombre
+                                    }
+                                    else if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        // Lógica para eliminar un punto
+                                    }
+                                    else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        editMenu = false;
+                                        mainMenu = true;
+                                    }
+                                }
+                            }
                         }
+
                         mapWindow.clear();
                         mapWindow.draw(mapSprite);
                         mapWindow.draw(returnBox);
                         mapWindow.draw(returnButton);
+
+                        if (mainMenu) {
+                            mapWindow.draw(insertBox); mapWindow.draw(insertButton);
+                            mapWindow.draw(editBox); mapWindow.draw(editButton);
+                            mapWindow.draw(deleteBox); mapWindow.draw(deleteButton);
+
+                        }
+                        else if (insertMenu) {
+                            mapWindow.draw(addRouteBox); mapWindow.draw(addRouteButton);
+                            //mapWindow.draw(backBox); mapWindow.draw(backButton);
+                        }
+                        else if (editMenu) {
+                            mapWindow.draw(addPointBox); mapWindow.draw(addPointButton);
+                            mapWindow.draw(changeNameBox); mapWindow.draw(changeNameButton);
+                            mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
+                            //mapWindow.draw(backBox); mapWindow.draw(backButton);
+                        }
+
                         mapWindow.display();
                     }
                 }
-                if (exitButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
-                {
+                if (exitButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     window.close();
                 }
             }
         }
 
         window.clear();
-        window.draw(background); 
-        window.draw(titleBox); 
-        window.draw(title);     
-
-        window.draw(aboutBox);  
+        window.draw(background);
+        
+        window.draw(titleBox);
+        window.draw(title);
+        
+        window.draw(aboutBox);
         window.draw(aboutButton);
-
-        window.draw(mapBox);     
+        
+        window.draw(mapBox);
         window.draw(mapButton);
-
-        window.draw(exitBox);   
+        
+        window.draw(exitBox);
         window.draw(exitButton);
-
+        
         window.display();
     }
 
