@@ -133,10 +133,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="Proyecto_Progra_II_Esteban_Mena.cpp" />
+    <ClCompile Include="Route.cpp" />
+    <ClCompile Include="RouteList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="Route.h" />
+    <ClInclude Include="RouteList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

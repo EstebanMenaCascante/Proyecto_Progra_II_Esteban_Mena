@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <string>
+#include "RouteList.h"
 
 using namespace std;
 using namespace sf;
@@ -61,6 +63,7 @@ int main()
     bool menu = true;
     bool about = false;
     bool map = false;
+
     bool mainMenu = true;
     bool insertMenu = false;
     bool editMenu = false;
@@ -87,9 +90,11 @@ int main()
     addPointButton.setFillColor(Color::Black);
     changeNameButton.setFillColor(Color::Black);
     deletePointButton.setFillColor(Color::Black);
+
     insertButton.setFillColor(Color::Black);
     editButton.setFillColor(Color::Black);
     deleteButton.setFillColor(Color::Black);
+
     addRouteButton.setFillColor(Color::Black);
 
     RectangleShape insertBox(Vector2f(250, 75));
@@ -163,6 +168,11 @@ int main()
     music.setLoop(true);
     music.play();
 
+    RouteList routeList;
+    string currentRouteName;
+    bool addingRoute = false;
+    bool addPointsMode = false;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -174,7 +184,7 @@ int main()
             if (event.type == sf::Event::MouseButtonPressed)
             {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                if (aboutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                if (aboutBox.getGlobalBounds().contains(mousePos.x, mousePos.y))
                 {
                     sf::RenderWindow aboutWindow(sf::VideoMode(1000, 700), "Acerca de");
 
@@ -211,16 +221,15 @@ int main()
                         aboutWindow.draw(returnAboutBox);
                         aboutWindow.draw(returnAboutButton);
 
-                        //sf::Event event;
                         while (aboutWindow.pollEvent(event)) {
 
                             if (event.type == sf::Event::Closed)
                                 window.close();
-                            if (event.type == sf::Event::MouseButtonPressed) {
-                                
+
+                            if (event.type == sf::Event::MouseButtonPressed){
                                 sf::Vector2i mousePos = sf::Mouse::getPosition(aboutWindow);
 
-                                if (returnAboutButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                if (returnAboutBox.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                                     aboutWindow.close();
                                 }
 
@@ -233,7 +242,7 @@ int main()
 
                     }
                 }
-                if (mapButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                if (mapBox.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     sf::RenderWindow mapWindow(sf::VideoMode(1800, 1000), "Mapa");
 
                     Texture mapTexture;
@@ -262,7 +271,7 @@ int main()
                                         editMenu = true;
                                     }
                                     else if (deleteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        // Lógica para eliminar rutas
+                                        //eliminar rutas
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         mapWindow.close();
@@ -270,7 +279,20 @@ int main()
                                 }
                                 else if (insertMenu) {
                                     if (addRouteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        // Lógica para agregar una ruta
+                                        
+                                            cout << "Ingrese el nombre de la nueva ruta: ";
+                                            cin >> currentRouteName;
+                                            routeList.addRoute(currentRouteName);
+                                            addingRoute = true;
+                                            addPointsMode = true;
+                                        if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left) {
+                                            Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
+                                            routeList.addPointToRoute(currentRouteName, pointPos);
+                                        }
+                                        else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                            addingRoute = false;
+                                            addPointsMode = false;
+                                        }
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         insertMenu = false;
@@ -279,13 +301,13 @@ int main()
                                 }
                                 else if (editMenu) {
                                     if (addPointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        // Lógica para agregar un punto
+                                        //agregar un punto
                                     }
                                     else if (changeNameBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        // Lógica para cambiar el nombre
+                                        //cambiar el nombre
                                     }
                                     else if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        // Lógica para eliminar un punto
+                                        //eliminar un punto
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         editMenu = false;
@@ -314,11 +336,13 @@ int main()
                             mapWindow.draw(changeNameBox); mapWindow.draw(changeNameButton);
                             mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
                         }
+                        
+                        routeList.drawRoutes(mapWindow);
 
                         mapWindow.display();
                     }
                 }
-                if (exitButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                if (exitBox.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                     window.close();
                 }
             }
