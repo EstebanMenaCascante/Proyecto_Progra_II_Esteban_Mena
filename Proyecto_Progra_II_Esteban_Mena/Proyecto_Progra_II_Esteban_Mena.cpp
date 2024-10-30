@@ -282,9 +282,9 @@ int main()
                                         cout << "Ingrese el nombre de la nueva ruta: ";
                                         cin >> currentRouteName;
                                         routeList.addRoute(currentRouteName);
-                                        addPointsMode = true; // Activar modo de agregar puntos
+                                        addPointsMode = true;
                                     }
-                                    else if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left) {
+                                    else if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x<1293 && mapEvent.mouseButton.y<937) {
                                         Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
                                         routeList.addPointToRoute(currentRouteName, pointPos);
                                     }
