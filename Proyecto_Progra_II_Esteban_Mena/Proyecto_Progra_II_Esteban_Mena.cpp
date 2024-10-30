@@ -279,26 +279,23 @@ int main()
                                 }
                                 else if (insertMenu) {
                                     if (addRouteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        
-                                            cout << "Ingrese el nombre de la nueva ruta: ";
-                                            cin >> currentRouteName;
-                                            routeList.addRoute(currentRouteName);
-                                            addingRoute = true;
-                                            addPointsMode = true;
-                                        if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left) {
-                                            Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
-                                            routeList.addPointToRoute(currentRouteName, pointPos);
-                                        }
-                                        else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                            addingRoute = false;
-                                            addPointsMode = false;
-                                        }
+                                        cout << "Ingrese el nombre de la nueva ruta: ";
+                                        cin >> currentRouteName;
+                                        routeList.addRoute(currentRouteName);
+                                        addPointsMode = true; // Activar modo de agregar puntos
+                                    }
+                                    else if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left) {
+                                        Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
+                                        routeList.addPointToRoute(currentRouteName, pointPos);
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         insertMenu = false;
                                         mainMenu = true;
+                                        addPointsMode = false; // Desactivar modo de agregar puntos
                                     }
                                 }
+
+
                                 else if (editMenu) {
                                     if (addPointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         //agregar un punto
