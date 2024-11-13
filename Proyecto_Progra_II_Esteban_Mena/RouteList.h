@@ -7,6 +7,8 @@
 #include <string>
 #include "Node.h"
 #include "Route.h"
+#include <cstdlib>
+#include <ctime>
 
 class RouteList {
 private:
@@ -17,9 +19,12 @@ public:
     ~RouteList();
     void addRoute(const string& routeName);
     void addPointToRoute(const string& routeName, Vector2f position, string namePoint);
-    void drawRoutes(RenderWindow& window, Font& font) const;
-    void deletePoint(string& _name, string& _point);
-    void deleteNearPoint(const string& routeName, Vector2f positiones);
+    void drawRoutes(RenderWindow& window, Font& font, bool isModifi) const;
+    void drawRoutesNames(RenderWindow& window, Font& font);
+    void deletePoint(string& _name, string& _point, bool isMod);
+    void deleteNearPoint(const string& routeName, Vector2f positiones, bool IsMood);
     string searchRoute(string& nameRoute);
+    void deleteRoute(const string& routeName);
     Route* getHead() const;
+
 };

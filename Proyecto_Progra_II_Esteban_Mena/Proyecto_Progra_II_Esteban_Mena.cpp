@@ -88,6 +88,7 @@ int main()
     Text addRouteButton("Agregar Ruta", font2, 40);
 
     Text saveRouteButton("Guardar", font2, 20);
+    Text chargeRouteButton("Cargar Rutas", font2, 40);
 
 
     returnButton.setFillColor(Color::Black);
@@ -101,6 +102,7 @@ int main()
 
     addRouteButton.setFillColor(Color::Black);
     saveRouteButton.setFillColor(Color::Black);
+    chargeRouteButton.setFillColor(Color::Black);
 
     RectangleShape insertBox(Vector2f(250, 75));
     insertBox.setPosition(1430, 300);
@@ -127,6 +129,11 @@ int main()
     addPointBox.setPosition(1430, 150);
     addPointBox.setFillColor(Color::White);
     centerTextInRectangle(addPointButton, addPointBox);
+    
+    RectangleShape chargeBox(Vector2f(250, 75));
+    chargeBox.setPosition(1430, 450);
+    chargeBox.setFillColor(Color::White);
+    centerTextInRectangle(chargeRouteButton, chargeBox);
 
     RectangleShape changeColorBox(Vector2f(250, 65));
     changeColorBox.setPosition(1430, 200);
@@ -167,6 +174,7 @@ int main()
     saveBox.setFillColor(Color::White);
     saveBox.setPosition(1300, 100);
     centerTextInRectangle(saveRouteButton, saveBox);
+    
 
     sf::Music music;
     if (!music.openFromFile("The Hobbit_LOTR_Sound_of_The_Shire.ogg")) {
@@ -178,11 +186,17 @@ int main()
     music.setLoop(true);
     music.play();
 
+    srand(static_cast<unsigned>(time(nullptr)));
     RouteList routeList;
+    Route route;
+    Node node;
     string currentRouteName;
     bool addingRoute = false;
     bool addPointsMode = false;
     bool deletePointsMode = false;
+    bool colorChose = false;
+
+    bool isModificable = false;
 
     while (window.isOpen())
     {
@@ -282,7 +296,15 @@ int main()
                                         editMenu = true;
                                     }
                                     else if (deleteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        //eliminar rutas
+                                        string routeNameOpcion;
+                                        cout << "Ingrese el la ruta que quiere borrar: ";
+                                        cin >> routeNameOpcion;
+
+                                        routeList.searchRoute(routeNameOpcion);
+                                        currentRouteName = routeNameOpcion;
+
+                                        routeList.deleteRoute(currentRouteName);
+
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         mapWindow.close();
@@ -293,8 +315,14 @@ int main()
                                     if (addRouteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         cout << "\nIngrese el nombre de la nueva ruta: ";
                                         cin >> currentRouteName;
-                                        routeList.addRoute(currentRouteName);                                       
+                                        routeList.addRoute(currentRouteName);      
+                                        //isModificable = true;
                                         addPointsMode = true;
+                                        colorChose = true;
+                                    }
+                                    if (chargeBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        cout << "Cargando rutas\n";
+                                        FileManager::loadRoutesFromFile(routeList, "route.txt", mapWindow, font);
                                     }
                                     else if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x<1293 && mapEvent.mouseButton.y<937) {
                                         Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
@@ -302,9 +330,59 @@ int main()
                                         cout << "Ingrese el nombre del punto: ";
                                         cin >> pointName;
                                         routeList.addPointToRoute(currentRouteName, pointPos, pointName);
+                                        //isModificable = false;
+                                    }
+                                    else if (colorChose && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x >= 1430 && mapEvent.mouseButton.x <= 1430 + 250 && mapEvent.mouseButton.y >= 100 && mapEvent.mouseButton.y >= 100 + 65)
+                                    {
+                                        cout << "Seleccionando color...\n";
+                                        RenderWindow paletteWindow(VideoMode(500, 500), "Paleta de Color");
+
+                                        Texture paletteTexture;
+                                        if (!paletteTexture.loadFromFile("images/img_colors.png")) {
+                                            throw runtime_error("Error al cargar la imagen de la paleta de colores.");
+                                        }
+
+                                        Sprite paletteSprite(paletteTexture);
+                                        Image paletteImage = paletteTexture.copyToImage();
+
+                                        bool colorSelected = false;  // Variable para controlar la selección del color
+
+                                        while (paletteWindow.isOpen()) {
+                                            Event event;
+                                            while (paletteWindow.pollEvent(event)) {
+                                                if (event.type == Event::Closed) {
+                                                    paletteWindow.close();  // Cierra la ventana de la paleta
+                                                }
+                                                if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left) {
+                                                    Vector2i mousePos = Mouse::getPosition(paletteWindow);
+
+                                                    // Verifica si el clic fue dentro de la imagen de la paleta
+                                                    if (mousePos.x >= 0 && mousePos.x < paletteTexture.getSize().x &&
+                                                        mousePos.y >= 0 && mousePos.y < paletteTexture.getSize().y) {
+
+                                                        Color selectedColor = paletteImage.getPixel(mousePos.x, mousePos.y);
+
+                                                        // Asigna el color al nodo
+                                                        node.color = selectedColor;
+                                                        cout << "Color seleccionado!!!\n";
+
+                                                        colorSelected = true;  // Marca que se seleccionó un color
+                                                        break;  // Sale del ciclo de eventos
+                                                    }
+                                                }
+                                            }
+
+                                            if (colorSelected) {
+                                                paletteWindow.close();  // Cierra la ventana de la paleta si se seleccionó el color
+                                            }
+
+                                            paletteWindow.clear(Color::White);
+                                            paletteWindow.draw(paletteSprite);
+                                            paletteWindow.display();
+                                        }
                                     }
                                     else if (saveBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        FileManager::saveRoutesToFile(routeList, "routes.txt");
+                                        FileManager::saveRoutesToFile(routeList, "route.txt");
                                         cout << "\nSe ha guardado la ruta\n";
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
@@ -317,7 +395,7 @@ int main()
 
                                 else if (editMenu) {
                                     if (saveBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        FileManager::saveRoutesToFile(routeList, "routes.txt");
+                                        FileManager::saveRoutesToFile(routeList, "route.txt");
                                         cout << "\nSe ha guardado la ruta\n";
                                     }
                                     if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
@@ -337,39 +415,51 @@ int main()
                                         {
                                             deletePointsMode = false;
                                             addPointsMode = true;
+                                            isModificable = true;
                                         }
                                     }
-                                    if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x < 1293 && mapEvent.mouseButton.y < 937)
-                                    {
-                                        Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
-                                        string pointName;
-                                        cout << "Ingrese el nombre del punto: ";
-                                        cin >> pointName;
-                                        routeList.addPointToRoute(currentRouteName, pointPos, pointName);
+                                    if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x < 1293 && mapEvent.mouseButton.y < 937) {
+                                        if (!currentRouteName.empty()) {
+                                            Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
+                                            string pointName;
+                                            cout << "Ingrese el nombre del punto: ";
+                                            cin >> pointName;
+
+                                            // Llama a la función para agregar el punto a la ruta específica
+                                            routeList.addPointToRoute(currentRouteName, pointPos, pointName);
+                                            cout << "Punto agregado a la ruta " << currentRouteName << ".\n";
+                                            isModificable = false;
+                                        }
+                                        else {
+                                            cout << "Error: No se ha seleccionado ninguna ruta.\n";
+                                        }
                                     }
-                                    if (changeColorBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                       //cambiar el nombre
-                                    }
+                                   
                                     if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        string routeNameOpcion;
-                                        cout << "Ingrese el la ruta que quiere editar: ";
-                                        cin >> routeNameOpcion;
+                                        if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                            string routeNameOpcion;
+                                            cout << "Ingrese la ruta de la que quiere eliminar un punto: ";
+                                            cin >> routeNameOpcion;
 
-                                        routeList.searchRoute(routeNameOpcion);
-                                        currentRouteName = routeNameOpcion;
-
-                                        if (!routeNameOpcion.empty()) 
-                                        {
-                                            addPointsMode = false;
-                                            deletePointsMode = true;
+                                            // Busca la ruta y verifica si existe antes de activar deletePointsMode
+                                            if (routeList.searchRoute(routeNameOpcion) != "") {
+                                                currentRouteName = routeNameOpcion;
+                                                cout << "Ruta encontrada. Puede eliminar puntos.\n";
+                                                addPointsMode = false;
+                                                deletePointsMode = true;
+                                                //isModificable = true;
+                                            }
+                                            else {
+                                                cout << "Ruta no encontrada. Verifique el nombre ingresado.\n";
+                                                deletePointsMode = false;
+                                            }
                                         }
-                                                
-
                                     }
                                     if (deletePointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x < 1293 && mapEvent.mouseButton.y < 937)
                                     {
                                         Vector2f mousetPos = mapWindow.mapPixelToCoords(mousePosMap);
-                                        routeList.deleteNearPoint(currentRouteName, mousetPos);
+                                        routeList.deleteNearPoint(currentRouteName, mousetPos, isModificable);
+                                        isModificable = false;
                                     }                                    
                                 }
                             }
@@ -390,8 +480,7 @@ int main()
                             mapWindow.draw(addRouteBox); mapWindow.draw(addRouteButton);
                             mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
                             mapWindow.draw(changeColorBox); mapWindow.draw(changeColorButton);
-                            Route route;
-                            route.drawColorPalette(mapWindow);
+                            mapWindow.draw(chargeBox); mapWindow.draw(chargeRouteButton);
                         }
                         else if (editMenu) {
                             mapWindow.draw(addPointBox); mapWindow.draw(addPointButton);
@@ -399,7 +488,8 @@ int main()
                             mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
                         }
                         
-                        routeList.drawRoutes(mapWindow, font);
+                        routeList.drawRoutes(mapWindow, font, isModificable);
+                        routeList.drawRoutesNames(mapWindow, font);
 
                         mapWindow.display();
                     }

@@ -10,17 +10,15 @@
 struct Route {
     string name;
     Node* headNode;
+    Color routeColor;
     Route* next;
     Route* prev;
 
-    Route(const string& routeName) : name(routeName), headNode(nullptr) {}
+    Route(const string& routeName);
     Route();
 
     void addPoint(Vector2f position, string pointName);
-    void drawPoints(RenderWindow& window, Font& font) const;
-    void drawColorPalette(sf::RenderWindow& window);
-    Color handleColorSelection(sf::Vector2i mousePos);
-    void applyColorToPoints(sf::Color color);
-    void processEvents(sf::RenderWindow& window, sf::Event& event);
+    void drawPoints(sf::RenderWindow& window, sf::Font& font, bool& isModif);
+    void assignColorToNodes(sf::Color color);
    
 };

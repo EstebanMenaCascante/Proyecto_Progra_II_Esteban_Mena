@@ -20,6 +20,15 @@ RouteList::~RouteList() {
     }
 }
 
+Color generateRandomColor()
+{
+    // Genera valores aleatorios para los componentes rojo, verde y azul
+    int r = rand() % 256;
+    int g = rand() % 256;
+    int b = rand() % 256;
+    return sf::Color(r, g, b);
+}
+
 void centerTextPoint(Text& text, const RectangleShape& rectangle) {
     FloatRect textBounds = text.getLocalBounds();
     FloatRect rectBounds = rectangle.getGlobalBounds();
@@ -27,6 +36,14 @@ void centerTextPoint(Text& text, const RectangleShape& rectangle) {
         rectBounds.left + (rectBounds.width / 2.f) - (textBounds.width / 2.f),
         rectBounds.top + (rectBounds.height / 2.f) - (textBounds.height / 2.f) - textBounds.top
     );
+}
+
+Route::Route(const string& routeName)
+{
+    name = routeName;
+    headNode = nullptr; 
+    routeColor = generateRandomColor();
+
 }
 
 Route::Route()
@@ -49,9 +66,23 @@ void Route::addPoint(sf::Vector2f position, string pointName) {
     }
 }
 
-void Route::drawPoints(sf::RenderWindow& window, sf::Font& font) const {
+bool isModified = false;
+
+
+
+void Route::drawPoints(sf::RenderWindow& window, sf::Font& font, bool& isModif) {
     Node* temp = headNode;
 
+    if (isModif) { // Solo cambia el color si la ruta fue modificada
+        Node* nodeTemp = temp;
+        while (nodeTemp) {
+            nodeTemp->color = generateRandomColor();  // Asigna un color único a cada nodo
+            nodeTemp = nodeTemp->next;
+        }
+        isModif = false;  // Restablece la bandera
+    }
+
+    // Dibujar las curvas
     if (temp && temp->next) {
         const int segments = 40;
         const float thickness = 50.0f;
@@ -76,7 +107,7 @@ void Route::drawPoints(sf::RenderWindow& window, sf::Font& font) const {
                     );
 
                     smoothCurve[i].position = interpolatedPos;
-                    smoothCurve[i].color = sf::Color::Blue;
+                    smoothCurve[i].color = temp->color;  // Aplica el color del nodo actual
                 }
 
                 window.draw(smoothCurve);
@@ -86,12 +117,13 @@ void Route::drawPoints(sf::RenderWindow& window, sf::Font& font) const {
         }
     }
 
+    // Redibuja cada punto de la ruta con su color asignado
     temp = headNode;
     while (temp) {
         sf::CircleShape point(10);
         point.setOrigin(5, 5);
         point.setPosition(temp->position);
-        point.setFillColor(sf::Color::Red);
+        point.setFillColor(temp->color);  // Usa el color asignado al nodo
         window.draw(point);
 
         sf::Text pointLabel(temp->name, font, 15);
@@ -110,7 +142,6 @@ void Route::drawPoints(sf::RenderWindow& window, sf::Font& font) const {
     }
 }
 
-
 void RouteList::addRoute(const string& routeName) {
     Route* newRoute = new Route(routeName);
     newRoute->next = headRoute;
@@ -121,7 +152,9 @@ void RouteList::addPointToRoute(const string& routeName, Vector2f position, stri
     Route* current = headRoute;
     while (current != nullptr) {
         if (current->name == routeName) {
-            current->addPoint(position,namePoint);
+            current->addPoint(position, namePoint);
+            cout << "Punto añadido a la ruta " << routeName << ": " << namePoint << " en ("
+                << position.x << ", " << position.y << ")\n";
             return;
         }
         current = current->next;
@@ -129,15 +162,35 @@ void RouteList::addPointToRoute(const string& routeName, Vector2f position, stri
     cout << "Ruta " << routeName << " no encontrada." << endl;
 }
 
-void RouteList::drawRoutes(RenderWindow& window, Font& font) const {
+void RouteList::drawRoutes(RenderWindow& window, Font& font, bool isModifi) const {
     Route* current = headRoute;
     while (current != nullptr) {
-        current->drawPoints(window, font);
+        current->drawPoints(window, font,isModifi);
         current = current->next;
     }
 }
 
-void RouteList::deletePoint(string& _name, string& _point) {
+void RouteList::drawRoutesNames(RenderWindow& window, Font& font) {
+    Route* current = headRoute;
+    int yOffset = 700;
+
+    while (current != nullptr) {
+        // Crear el texto de la ruta
+        sf::Text routeText;
+        routeText.setFont(font);
+        routeText.setString(current->name);
+        routeText.setCharacterSize(24);
+        routeText.setFillColor(sf::Color::White);
+        routeText.setPosition(1450, yOffset);  // Posición inicial en la parte visible de la ventana
+
+        window.draw(routeText);  // Dibujar el texto en la ventana
+
+        yOffset += 30;  // Desplazar hacia abajo para el siguiente nombre de ruta
+        current = current->next;  // Avanzar al siguiente nodo
+    }
+}
+
+void RouteList::deletePoint(string& _name, string& _point, bool isMod) {
     Route* route = headRoute;
     while (route && route->name != _name) {
         route = route->next;
@@ -152,137 +205,132 @@ void RouteList::deletePoint(string& _name, string& _point) {
     if (temp->next)temp->next->prev = temp->prev;
     if (temp == route->headNode)route->headNode = temp->next;
     delete temp;
+    
+    isMod = true;
 }
 
-void RouteList::deleteNearPoint(const string& routeName, Vector2f positiones) {
+void RouteList::deleteNearPoint(const string& routeName, Vector2f positiones, bool IsMood) {
+    // Encuentra la ruta específica por su nombre
     Route* route = headRoute;
-    if (route->name == routeName) 
-    {
-        if (!headRoute)return;
+    while (route != nullptr && route->name != routeName) {
+        route = route->next;
+    }
 
-        float minDistanceSquared = numeric_limits<float>::max();
-        Node* closestPoint = nullptr;
-        Route* closestRoute = nullptr;
+    // Verifica si la ruta fue encontrada
+    if (route == nullptr) {
+        cout << "Ruta no encontrada: " << routeName << "\n";
+        return;
+    }
 
+    // Busca el punto más cercano solo dentro de la ruta especificada
+    float minDistanceSquared = numeric_limits<float>::max();
+    Node* closestPoint = nullptr;
 
-        while (route) {
-            Node* point = route->headNode;
-            while (point) {
-                int dx = point->position.x - positiones.x;
-                int dy = point->position.y - positiones.y;
-                float distanceSquared = dx * dx + dy * dy;
-                if (distanceSquared < minDistanceSquared) {
-                    minDistanceSquared = distanceSquared;
-                    closestPoint = point;
-                    closestRoute = route;
-                }
-                point = point->next;
-            }
-            route = route->next;
+    Node* point = route->headNode;
+    while (point != nullptr) {
+        float dx = point->position.x - positiones.x;
+        float dy = point->position.y - positiones.y;
+        float distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared < minDistanceSquared) {
+            minDistanceSquared = distanceSquared;
+            closestPoint = point;
         }
-        if (closestPoint && closestRoute) {
-            deletePoint(closestRoute->name, closestPoint->name);
-        }
-        else {
-            cout << "No se encontro ningun punto a eliminar\n";
-        }
+        point = point->next;
+    }
+
+    // Si se encontró el punto más cercano, elimínalo
+    if (closestPoint != nullptr) {
+        deletePoint(route->name, closestPoint->name, IsMood);
+    }
+    else {
+        cout << "No se encontró ningún punto cercano a eliminar en la ruta especificada.\n";
     }
 }
 
-string RouteList::searchRoute(string& nameRoute)
-{
+
+string RouteList::searchRoute(string& nameRoute) {
     Route* curr = headRoute;
     while (curr != nullptr) {
         if (curr->name == nameRoute) {
-           return curr->name;
+            return curr->name;
         }
         curr = curr->next;
     }
-    cerr<<"No se encontro la ruta.\n";
+    cout << "No se encontró la ruta.\n";
+    return ""; // Asegura que retorna una cadena vacía si no se encuentra la ruta
 }
 
-void Route::drawColorPalette(sf::RenderWindow& window) {
-    // Crear una paleta de colores
-    sf::RectangleShape redColorBox(sf::Vector2f(50, 50));
-    redColorBox.setFillColor(sf::Color::Red);
-    redColorBox.setPosition(1450, 300);
-
-    sf::RectangleShape blackColorBox(sf::Vector2f(50, 50));
-    blackColorBox.setFillColor(sf::Color::Black);
-    blackColorBox.setPosition(1500, 300);
-
-    sf::RectangleShape cyanColorBox(sf::Vector2f(50, 50));
-    cyanColorBox.setFillColor(sf::Color::Cyan);
-    cyanColorBox.setPosition(1550, 300);
-
-    sf::RectangleShape magentaColorBox(sf::Vector2f(50, 50));
-    magentaColorBox.setFillColor(sf::Color::Magenta);
-    magentaColorBox.setPosition(1450, 350);
-
-    sf::RectangleShape greenColorBox(sf::Vector2f(50, 50));
-    greenColorBox.setFillColor(sf::Color::Green);
-    greenColorBox.setPosition(1500, 350);
-
-    sf::RectangleShape blueColorBox(sf::Vector2f(50, 50));
-    blueColorBox.setFillColor(sf::Color::Blue);
-    blueColorBox.setPosition(1550, 350);
-
-    // Dibujar la paleta
-    window.draw(redColorBox);
-    window.draw(blackColorBox);
-    window.draw(cyanColorBox);
-    window.draw(magentaColorBox);
-    window.draw(greenColorBox);
-    window.draw(blueColorBox);
-}
-
-Color Route::handleColorSelection(sf::Vector2i mousePos) 
-{
-    // Verificar si el clic ocurrió sobre algún color de la paleta
-    if (mousePos.x >= 10 && mousePos.x <= 60 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Red;
-    }
-    if (mousePos.x >= 10 && mousePos.x <= 60 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Black;
-    }
-    if (mousePos.x >= 10 && mousePos.x <= 60 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Cyan;
-    }
-    if (mousePos.x >= 70 && mousePos.x <= 120 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Magenta;
-    }
-    if (mousePos.x >= 70 && mousePos.x <= 120 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Green;
-    }
-    if (mousePos.x >= 130 && mousePos.x <= 180 && mousePos.y >= 10 && mousePos.y <= 60) {
-        return sf::Color::Blue;
-    }
-    return sf::Color::White;  // No se seleccionó ningún color
-}
-
-void Route::applyColorToPoints(sf::Color color) {
+void Route::assignColorToNodes(sf::Color color) {
     Node* temp = headNode;
-    while (temp) {
-        temp->color = color;  // Asignar el color a cada punto
+    while (temp != nullptr) {
+        temp->color = color;
         temp = temp->next;
     }
 }
 
-void Route::processEvents(sf::RenderWindow& window, sf::Event& event) {
-    if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
-            // Detectar clic en la paleta de colores
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            sf::Color selectedColor = handleColorSelection(mousePos);
-
-            if (selectedColor != sf::Color::White) {
-                // Si se seleccionó un color, aplicar ese color a los puntos de la ruta
-                applyColorToPoints(selectedColor);
-            }
-        }
+Color Node::getColorNode()
+{
+    if (head != nullptr) {
+        return head->color;  // Devuelve el color solo si la lista no está vacía
+    }
+    else {
+        // Maneja el caso donde headNode es nullptr
+        cout << "La lista está vacía.\n";
+        return Color::Black;  // O el color que consideres apropiado para el caso
     }
 }
 
+void Node::setColorNode(Color pColor)
+{
+    if (head == nullptr) {
+        cout << "Error: La lista de nodos está vacía.\n";
+        return;
+    }
+
+    Node* temp = head;
+    while (temp != nullptr) {
+        cout << "Cambiando color del nodo: " << temp->name << endl; // Verifica el nodo
+        temp->color = pColor;
+        temp = temp->next;
+    }
+}
+
+void RouteList::deleteRoute(const string& routeName) {
+    Route* current = headRoute;
+    Route* prev = nullptr;
+
+    // Busca la ruta
+    while (current != nullptr) {
+        if (current->name == routeName) {
+            // Si la ruta es la primera
+            if (prev == nullptr) {
+                headRoute = current->next;
+            }
+            else {
+                prev->next = current->next;
+            }
+
+            // Elimina todos los nodos de la ruta (puntos de la ruta)
+            Node* point = current->headNode;
+            while (point != nullptr) {
+                Node* temp = point;
+                point = point->next;
+                delete temp;
+            }
+
+            // Elimina la ruta en sí
+            delete current;
+            cout << "Ruta " << routeName << " eliminada correctamente." << endl;
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // Si la ruta no fue encontrada
+    cout << "Ruta " << routeName << " no encontrada." << endl;
+}
 
 Route* RouteList::getHead() const {
     return headRoute;
