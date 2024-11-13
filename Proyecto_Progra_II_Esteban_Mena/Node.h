@@ -1,5 +1,7 @@
 #pragma once
 
+//Node.h
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
@@ -8,10 +10,14 @@
 using namespace std;
 using namespace sf;
 
-struct PointNode {
+struct Node {
     Vector2f position;
-    PointNode* next;
+    string name;
+    Node* next;
+    Node* prev;
 
-    PointNode(Vector2f pos) : position(pos), next(nullptr) {}
+    Node(Vector2f pos, const string& pointName) : position(pos), name(pointName), next(nullptr), prev(nullptr) {}
+    Node() : next(nullptr), prev(nullptr) {}
+
 };
 

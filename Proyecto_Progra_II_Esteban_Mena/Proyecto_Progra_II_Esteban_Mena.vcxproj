@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Proyecto_Progra_II_Esteban_Mena.cpp" />
     <ClCompile Include="Route.cpp" />
@@ -142,6 +143,7 @@
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Route.h" />
     <ClInclude Include="RouteList.h" />

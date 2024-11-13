@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include "RouteList.h"
+#include "FileManager.h"
 
 using namespace std;
 using namespace sf;
@@ -86,6 +87,9 @@ int main()
 
     Text addRouteButton("Agregar Ruta", font2, 40);
 
+    Text saveRouteButton("Guardar", font2, 20);
+
+
     returnButton.setFillColor(Color::Black);
     addPointButton.setFillColor(Color::Black);
     changeNameButton.setFillColor(Color::Black);
@@ -96,6 +100,7 @@ int main()
     deleteButton.setFillColor(Color::Black);
 
     addRouteButton.setFillColor(Color::Black);
+    saveRouteButton.setFillColor(Color::Black);
 
     RectangleShape insertBox(Vector2f(250, 75));
     insertBox.setPosition(1430, 300);
@@ -158,6 +163,11 @@ int main()
     exitBox.setPosition((window.getSize().x - exitBox.getSize().x) / 2, 700);
     centerTextInRectangle(exitButton, exitBox);
 
+    sf::RectangleShape saveBox(sf::Vector2f(85, 30));
+    saveBox.setFillColor(Color::White);
+    saveBox.setPosition(1300, 100);
+    centerTextInRectangle(saveRouteButton, saveBox);
+
     sf::Music music;
     if (!music.openFromFile("The Hobbit_LOTR_Sound_of_The_Shire.ogg")) {
         cerr << "Error al cargar la música\n";
@@ -172,6 +182,7 @@ int main()
     string currentRouteName;
     bool addingRoute = false;
     bool addPointsMode = false;
+    bool deletePointsMode = false;
 
     while (window.isOpen())
     {
@@ -251,7 +262,7 @@ int main()
                         return -1;
                     }
                     Sprite mapSprite(mapTexture);
-                   
+
                     while (mapWindow.isOpen()) {
                         sf::Event mapEvent;
                         while (mapWindow.pollEvent(mapEvent)) {
@@ -278,15 +289,23 @@ int main()
                                     }
                                 }
                                 else if (insertMenu) {
+
                                     if (addRouteBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        cout << "Ingrese el nombre de la nueva ruta: ";
+                                        cout << "\nIngrese el nombre de la nueva ruta: ";
                                         cin >> currentRouteName;
-                                        routeList.addRoute(currentRouteName);
+                                        routeList.addRoute(currentRouteName);                                       
                                         addPointsMode = true;
                                     }
                                     else if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x<1293 && mapEvent.mouseButton.y<937) {
                                         Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
-                                        routeList.addPointToRoute(currentRouteName, pointPos);
+                                        string pointName;
+                                        cout << "Ingrese el nombre del punto: ";
+                                        cin >> pointName;
+                                        routeList.addPointToRoute(currentRouteName, pointPos, pointName);
+                                    }
+                                    else if (saveBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        FileManager::saveRoutesToFile(routeList, "routes.txt");
+                                        cout << "\nSe ha guardado la ruta\n";
                                     }
                                     else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         insertMenu = false;
@@ -297,19 +316,61 @@ int main()
 
 
                                 else if (editMenu) {
-                                    if (addPointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        //agregar un punto
+                                    if (saveBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        FileManager::saveRoutesToFile(routeList, "routes.txt");
+                                        cout << "\nSe ha guardado la ruta\n";
                                     }
-                                    else if (changeNameBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        //cambiar el nombre
-                                    }
-                                    else if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
-                                        //eliminar un punto
-                                    }
-                                    else if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                    if (returnBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                         editMenu = false;
                                         mainMenu = true;
                                     }
+                                    if (addPointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                                
+                                        string routeNameOpcion;
+                                        cout << "Ingrese el la ruta que quiere editar: ";
+                                        cin >> routeNameOpcion;
+
+                                        routeList.searchRoute(routeNameOpcion);
+                                        currentRouteName = routeNameOpcion;
+
+                                        if (!routeNameOpcion.empty()) 
+                                        {
+                                            deletePointsMode = false;
+                                            addPointsMode = true;
+                                        }
+                                    }
+                                    if (addPointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x < 1293 && mapEvent.mouseButton.y < 937)
+                                    {
+                                        Vector2f pointPos = mapWindow.mapPixelToCoords(mousePosMap);
+                                        string pointName;
+                                        cout << "Ingrese el nombre del punto: ";
+                                        cin >> pointName;
+                                        routeList.addPointToRoute(currentRouteName, pointPos, pointName);
+                                    }
+                                    if (changeNameBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                       //cambiar el nombre
+                                    }
+                                    if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                        string routeNameOpcion;
+                                        cout << "Ingrese el la ruta que quiere editar: ";
+                                        cin >> routeNameOpcion;
+
+                                        routeList.searchRoute(routeNameOpcion);
+                                        currentRouteName = routeNameOpcion;
+
+                                        if (!routeNameOpcion.empty()) 
+                                        {
+                                            addPointsMode = false;
+                                            deletePointsMode = true;
+                                        }
+                                                
+
+                                    }
+                                    if (deletePointsMode && mapEvent.mouseButton.button == Mouse::Left && mapEvent.mouseButton.x < 1293 && mapEvent.mouseButton.y < 937)
+                                    {
+                                        Vector2f mousetPos = mapWindow.mapPixelToCoords(mousePosMap);
+                                        routeList.deleteNearPoint(currentRouteName, mousetPos);
+                                    }                                    
                                 }
                             }
                         }
@@ -327,14 +388,16 @@ int main()
                         }
                         else if (insertMenu) {
                             mapWindow.draw(addRouteBox); mapWindow.draw(addRouteButton);
+                            mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
                         }
                         else if (editMenu) {
                             mapWindow.draw(addPointBox); mapWindow.draw(addPointButton);
                             mapWindow.draw(changeNameBox); mapWindow.draw(changeNameButton);
                             mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
+                            mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
                         }
                         
-                        routeList.drawRoutes(mapWindow);
+                        routeList.drawRoutes(mapWindow, font);
 
                         mapWindow.display();
                     }

@@ -27,6 +27,9 @@
     <ClCompile Include="RouteList.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -39,6 +42,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="RouteList.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManager.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
