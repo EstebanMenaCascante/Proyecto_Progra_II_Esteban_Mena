@@ -26,5 +26,4 @@ public:
     string searchRoute(string& nameRoute);
     void deleteRoute(const string& routeName);
     Route* getHead() const;
-
 };

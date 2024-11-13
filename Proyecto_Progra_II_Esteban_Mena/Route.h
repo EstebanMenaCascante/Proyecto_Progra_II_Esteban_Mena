@@ -20,5 +20,4 @@ struct Route {
     void addPoint(Vector2f position, string pointName);
     void drawPoints(sf::RenderWindow& window, sf::Font& font, bool& isModif);
     void assignColorToNodes(sf::Color color);
-   
 };

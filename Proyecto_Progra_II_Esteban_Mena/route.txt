@@ -1,4 +1,19 @@
-Route: efef
-Point: fef,762,243
-Point: fefe,836,460
+Route: Seda
+Point: Dron,683,259
+Point: fd,778,464
+Point: fds,832,549
+Point: fds,834,687
+Point: ad,1110,654
+Point: dsa,1056,596
+Point: da,1131,467
+END_ROUTE
+Route: fd
+Point: g,209,760
+Point: k,402,743
+Point: l,452,818
+END_ROUTE
+Route: Sea
+Point: S,696,257
+Point: a,818,352
+Point: a,837,492
 END_ROUTE

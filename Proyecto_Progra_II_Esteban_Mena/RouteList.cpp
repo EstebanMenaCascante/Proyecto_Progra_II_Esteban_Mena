@@ -68,52 +68,90 @@ void Route::addPoint(sf::Vector2f position, string pointName) {
 
 bool isModified = false;
 
+sf::Vector2f calculateCatmullRom(float t, sf::Vector2f p0, sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f p3) {
+    float t2 = t * t;
+    float t3 = t2 * t;
 
+    float f1 = -0.5f * t3 + t2 - 0.5f * t;
+    float f2 = 1.5f * t3 - 2.5f * t2 + 1.0f;
+    float f3 = -1.5f * t3 + 2.0f * t2 + 0.5f * t;
+    float f4 = 0.5f * t3 - 0.5f * t2;
+
+    return f1 * p0 + f2 * p1 + f3 * p2 + f4 * p3;
+}
 
 void Route::drawPoints(sf::RenderWindow& window, sf::Font& font, bool& isModif) {
     Node* temp = headNode;
 
-    if (isModif) { // Solo cambia el color si la ruta fue modificada
+    // Cambia el color solo si la ruta fue modificada
+    if (isModif) {
         Node* nodeTemp = temp;
         while (nodeTemp) {
-            nodeTemp->color = generateRandomColor();  // Asigna un color único a cada nodo
+            nodeTemp->color = generateRandomColor();
             nodeTemp = nodeTemp->next;
         }
-        isModif = false;  // Restablece la bandera
+        isModif = false;
     }
 
-    // Dibujar las curvas
+    const int segments = 60;
+
+    // Asegurarse de tener al menos dos nodos
     if (temp && temp->next) {
-        const int segments = 40;
-        const float thickness = 50.0f;
+        Node* p0 = temp;
+        Node* p1 = temp;
+        Node* p2 = temp->next;
+        Node* p3 = p2->next ? p2->next : p2;  // Evitar puntero nulo
 
-        while (temp->next) {
-            Node* next = temp->next;
+        // Dibuja el primer segmento extendiendo el primer nodo
+        sf::VertexArray catmullRomCurve(sf::LineStrip, segments + 1);
+        for (int i = 0; i <= segments; ++i) {
+            float t = i / static_cast<float>(segments);
+            sf::Vector2f point = calculateCatmullRom(t, p0->position, p1->position, p2->position, p3->position);
 
-            for (float offset = -thickness / 2; offset <= thickness / 2; offset += 1.0f) {
-                sf::VertexArray smoothCurve(sf::LinesStrip, segments + 1);
+            catmullRomCurve[i].position = point;
+            catmullRomCurve[i].color = p1->color;
+        }
+        window.draw(catmullRomCurve);
 
-                for (int i = 0; i <= segments; ++i) {
-                    float t = i / static_cast<float>(segments);
-                    float t2 = t * t;
-                    float t3 = t2 * t;
+        // Avanza los punteros
+        p0 = p1;
+        p1 = p2;
+        p2 = p3;
+        p3 = p3->next;
 
-                    sf::Vector2f interpolatedPos(
-                        (2 * t3 - 3 * t2 + 1) * temp->position.x + (t3 - 2 * t2 + t) * (temp->position.x + 60 + offset) +
-                        (-2 * t3 + 3 * t2) * next->position.x + (t3 - t2) * (next->position.x - 60 + offset),
+        // Dibuja los segmentos intermedios
+        while (p3) {
+            sf::VertexArray catmullRomCurve(sf::LineStrip, segments + 1);
 
-                        (2 * t3 - 3 * t2 + 1) * temp->position.y + (t3 - 2 * t2 + t) * (temp->position.y + 60 + offset) +
-                        (-2 * t3 + 3 * t2) * next->position.y + (t3 - t2) * (next->position.y - 60 + offset)
-                    );
+            for (int i = 0; i <= segments; ++i) {
+                float t = i / static_cast<float>(segments);
+                sf::Vector2f point = calculateCatmullRom(t, p0->position, p1->position, p2->position, p3->position);
 
-                    smoothCurve[i].position = interpolatedPos;
-                    smoothCurve[i].color = temp->color;  // Aplica el color del nodo actual
-                }
-
-                window.draw(smoothCurve);
+                catmullRomCurve[i].position = point;
+                catmullRomCurve[i].color = p1->color;
             }
 
-            temp = temp->next;
+            window.draw(catmullRomCurve);
+
+            p0 = p1;
+            p1 = p2;
+            p2 = p3;
+            p3 = p3->next;
+        }
+
+        // Dibuja el último segmento extendiendo el último nodo
+        if (p2 && p3 == nullptr) {
+            p3 = p2; // Repetir el último punto
+
+            sf::VertexArray catmullRomCurve(sf::LineStrip, segments + 1);
+            for (int i = 0; i <= segments; ++i) {
+                float t = i / static_cast<float>(segments);
+                sf::Vector2f point = calculateCatmullRom(t, p0->position, p1->position, p2->position, p3->position);
+
+                catmullRomCurve[i].position = point;
+                catmullRomCurve[i].color = p1->color;
+            }
+            window.draw(catmullRomCurve);
         }
     }
 
@@ -123,14 +161,14 @@ void Route::drawPoints(sf::RenderWindow& window, sf::Font& font, bool& isModif) 
         sf::CircleShape point(10);
         point.setOrigin(5, 5);
         point.setPosition(temp->position);
-        point.setFillColor(temp->color);  // Usa el color asignado al nodo
+        point.setFillColor(temp->color);
         window.draw(point);
 
         sf::Text pointLabel(temp->name, font, 15);
         pointLabel.setPosition(temp->position.x + 10, temp->position.y);
         pointLabel.setFillColor(sf::Color::White);
 
-        RectangleShape pointNameBox(Vector2f(75, 20));
+        sf::RectangleShape pointNameBox(sf::Vector2f(75, 20));
         pointNameBox.setFillColor(sf::Color(0, 0, 0, 150));
         pointNameBox.setPosition(temp->position.x + 20, temp->position.y);
         centerTextPoint(pointLabel, pointNameBox);
