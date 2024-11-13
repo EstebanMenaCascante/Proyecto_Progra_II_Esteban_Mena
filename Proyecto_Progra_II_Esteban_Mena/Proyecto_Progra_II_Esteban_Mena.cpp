@@ -345,35 +345,33 @@ int main()
                                         Sprite paletteSprite(paletteTexture);
                                         Image paletteImage = paletteTexture.copyToImage();
 
-                                        bool colorSelected = false;  // Variable para controlar la selección del color
+                                        bool colorSelected = false;
 
                                         while (paletteWindow.isOpen()) {
                                             Event event;
                                             while (paletteWindow.pollEvent(event)) {
                                                 if (event.type == Event::Closed) {
-                                                    paletteWindow.close();  // Cierra la ventana de la paleta
+                                                    paletteWindow.close(); 
                                                 }
                                                 if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left) {
                                                     Vector2i mousePos = Mouse::getPosition(paletteWindow);
 
-                                                    // Verifica si el clic fue dentro de la imagen de la paleta
                                                     if (mousePos.x >= 0 && mousePos.x < paletteTexture.getSize().x &&
                                                         mousePos.y >= 0 && mousePos.y < paletteTexture.getSize().y) {
 
                                                         Color selectedColor = paletteImage.getPixel(mousePos.x, mousePos.y);
 
-                                                        // Asigna el color al nodo
                                                         node.color = selectedColor;
                                                         cout << "Color seleccionado!!!\n";
 
-                                                        colorSelected = true;  // Marca que se seleccionó un color
-                                                        break;  // Sale del ciclo de eventos
+                                                        colorSelected = true;
+                                                        break;
                                                     }
                                                 }
                                             }
 
                                             if (colorSelected) {
-                                                paletteWindow.close();  // Cierra la ventana de la paleta si se seleccionó el color
+                                                paletteWindow.close(); 
                                             }
 
                                             paletteWindow.clear(Color::White);
