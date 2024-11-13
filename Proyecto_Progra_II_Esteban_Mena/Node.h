@@ -13,6 +13,7 @@ using namespace sf;
 struct Node {
     Vector2f position;
     string name;
+    Color color;
     Node* next;
     Node* prev;
 

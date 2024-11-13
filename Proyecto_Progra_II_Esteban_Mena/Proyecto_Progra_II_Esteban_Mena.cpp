@@ -78,7 +78,7 @@ int main()
     Text returnAboutButton("Regresar", font2, 40);
 
     Text addPointButton("Agregar Punto", font2, 35);
-    Text changeNameButton("Cambiar Nombre", font2, 35);
+    Text changeColorButton("Elija un Color", font2, 35);
     Text deletePointButton("Eliminar Punto", font2, 35);
 
     Text insertButton("Insercion", font2, 40);
@@ -92,7 +92,7 @@ int main()
 
     returnButton.setFillColor(Color::Black);
     addPointButton.setFillColor(Color::Black);
-    changeNameButton.setFillColor(Color::Black);
+    changeColorButton.setFillColor(Color::Black);
     deletePointButton.setFillColor(Color::Black);
 
     insertButton.setFillColor(Color::Black);
@@ -128,10 +128,10 @@ int main()
     addPointBox.setFillColor(Color::White);
     centerTextInRectangle(addPointButton, addPointBox);
 
-    RectangleShape changeNameBox(Vector2f(250, 75));
-    changeNameBox.setPosition(1430, 250);
-    changeNameBox.setFillColor(Color::White);
-    centerTextInRectangle(changeNameButton, changeNameBox);
+    RectangleShape changeColorBox(Vector2f(250, 65));
+    changeColorBox.setPosition(1430, 200);
+    changeColorBox.setFillColor(Color::White);
+    centerTextInRectangle(changeColorButton, changeColorBox);
 
     RectangleShape deletePointBox(Vector2f(250, 75));
     deletePointBox.setPosition(1430, 350);
@@ -347,7 +347,7 @@ int main()
                                         cin >> pointName;
                                         routeList.addPointToRoute(currentRouteName, pointPos, pointName);
                                     }
-                                    if (changeNameBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
+                                    if (changeColorBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
                                        //cambiar el nombre
                                     }
                                     if (deletePointBox.getGlobalBounds().contains(mousePosMap.x, mousePosMap.y)) {
@@ -389,11 +389,13 @@ int main()
                         else if (insertMenu) {
                             mapWindow.draw(addRouteBox); mapWindow.draw(addRouteButton);
                             mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
+                            mapWindow.draw(changeColorBox); mapWindow.draw(changeColorButton);
+                            Route route;
+                            route.drawColorPalette(mapWindow);
                         }
                         else if (editMenu) {
                             mapWindow.draw(addPointBox); mapWindow.draw(addPointButton);
-                            mapWindow.draw(changeNameBox); mapWindow.draw(changeNameButton);
-                            mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
+                           mapWindow.draw(deletePointBox); mapWindow.draw(deletePointButton);
                             mapWindow.draw(saveBox); mapWindow.draw(saveRouteButton);
                         }
                         
